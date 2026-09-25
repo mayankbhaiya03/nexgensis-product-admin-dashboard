@@ -1,34 +1,41 @@
 import api from "@/lib/axios";
 
 // GET /products — with pagination, sorting, and optional category filter
-export async function getProducts({ limit = 10, skip = 0, sortBy, order, category } = {}) {
+export async function getProducts({ limit = 10, skip = 0, sortBy, order, category, delay } = {}, signal) {
   const params = { limit, skip };
   if (sortBy) params.sortBy = sortBy;
   if (order) params.order = order;
+  if (delay) params.delay = delay;
 
   // DummyJSON uses a different endpoint for category filtering
-  const url = category ? `/products/category/${category}` : "/products";
-  const res = await api.get(url, { params });
+  const url = category ? `/products/category/${encodeURIComponent(category)}` : "/products";
+  const res = await api.get(url, { params, signal });
   return res.data;
 }
 
-// GET /products/search?q= — search products by query
-export async function searchProducts(query, { limit = 10, skip = 0 } = {}) {
+// GET /products/search?q= — search products by query with pagination and sorting
+export async function searchProducts(query, { limit = 10, skip = 0, sortBy, order, delay } = {}, signal) {
+  const params = { q: query, limit, skip };
+  if (sortBy) params.sortBy = sortBy;
+  if (order) params.order = order;
+  if (delay) params.delay = delay;
+
   const res = await api.get("/products/search", {
-    params: { q: query, limit, skip },
+    params,
+    signal,
   });
   return res.data;
 }
 
 // GET /products/:id — single product details
-export async function getProductById(id) {
-  const res = await api.get(`/products/${id}`);
+export async function getProductById(id, signal) {
+  const res = await api.get(`/products/${id}`, { signal });
   return res.data;
 }
 
 // GET /products/categories — list of all categories
-export async function getCategories() {
-  const res = await api.get("/products/categories");
+export async function getCategories(signal) {
+  const res = await api.get("/products/categories", { signal });
   return res.data;
 }
 

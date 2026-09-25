@@ -1,14 +1,50 @@
-export default function ProductTable({ products }) {
+export default function ProductTable({ products, sort, order, onSortChange }) {
+  function handleHeaderClick(field) {
+    if (!onSortChange) return;
+    if (sort !== field) {
+      onSortChange(field, "asc");
+    } else if (order === "asc") {
+      onSortChange(field, "desc");
+    } else {
+      onSortChange("", "");
+    }
+  }
+
+  function renderSortIcon(field) {
+    if (sort !== field) {
+      return <span className="sort-icon-muted">⇅</span>;
+    }
+    return <span className="sort-icon-active">{order === "desc" ? "▼" : "▲"}</span>;
+  }
+
   return (
     <div className="table-wrapper">
       <table className="product-table">
         <thead>
           <tr>
             <th>Image</th>
-            <th>Title</th>
+            <th
+              className="sortable-header"
+              onClick={() => handleHeaderClick("title")}
+              title="Sort by Title"
+            >
+              Title {renderSortIcon("title")}
+            </th>
             <th>Category</th>
-            <th>Price</th>
-            <th>Rating</th>
+            <th
+              className="sortable-header"
+              onClick={() => handleHeaderClick("price")}
+              title="Sort by Price"
+            >
+              Price {renderSortIcon("price")}
+            </th>
+            <th
+              className="sortable-header"
+              onClick={() => handleHeaderClick("rating")}
+              title="Sort by Rating"
+            >
+              Rating {renderSortIcon("rating")}
+            </th>
             <th>Stock</th>
             <th>Actions</th>
           </tr>

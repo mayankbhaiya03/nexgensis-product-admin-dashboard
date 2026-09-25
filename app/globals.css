@@ -355,6 +355,23 @@ body {
     font-size: 1.125rem;
   }
 
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .search-group,
+  .filter-group,
+  .filter-group-action {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
   .pagination-wrapper {
     flex-direction: column;
     gap: 0.75rem;
@@ -372,6 +389,141 @@ body {
   .pagination-limit {
     justify-content: center;
   }
+}
+
+/* Dashboard Heading */
+.dashboard-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 1rem;
+}
+
+/* Filters & Search Toolbar */
+.filters-container {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.search-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 240px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  outline: none;
+  color: #111827;
+}
+
+.filter-input:focus {
+  border-color: #111827;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  line-height: 1;
+}
+
+.clear-search-btn:hover {
+  color: #111827;
+}
+
+.filter-select {
+  padding: 0.45rem 0.65rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #111827;
+  outline: none;
+  min-width: 140px;
+}
+
+.filter-select:focus {
+  border-color: #111827;
+}
+
+.filter-group-action {
+  display: flex;
+  align-items: flex-end;
+}
+
+.btn-clear-filters {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.45rem 0.75rem;
+}
+
+.btn-clear-filters:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Sortable Table Headers */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.sortable-header:hover {
+  background-color: #f3f4f6;
+}
+
+.sort-icon-muted {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  margin-left: 0.25rem;
+}
+
+.sort-icon-active {
+  color: #111827;
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+  font-weight: bold;
 }
 
 /* Pagination */
