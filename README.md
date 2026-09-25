@@ -1,25 +1,31 @@
 # Product Admin Dashboard
 
-A product admin dashboard built with Next.js and Tailwind CSS.
+A product admin dashboard built with Next.js, React, Tailwind CSS and Axios using the DummyJSON API.
 
-## Getting Started
+## Live Demo
 
-Install dependencies:
+https://nexgensis-product-admin-dashboard-51tho5ehb.vercel.app/
 
-```bash
-npm install
-```
+## Features
 
-Run the development server:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+- User login and protected dashboard
+- Product listing with pagination
+- Search, category filtering and sorting
+- Product details
+- Add, edit and delete products
+- Form validation and error handling
+- Responsive design
 
 ## Tech Stack
 
-- [Next.js](https://nextjs.org/)
-- [React](https://react.dev/)
-- [Tailwind CSS](https://tailwindcss.com/)
+- Next.js
+- React
+- Tailwind CSS
+- Axios
+- DummyJSON API
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
