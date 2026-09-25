@@ -5,6 +5,10 @@ A product admin dashboard built with Next.js, React, Tailwind CSS and Axios usin
 ## Live Demo
 
 https://nexgensis-product-admin-dashboard-51tho5ehb.vercel.app/
+## Demo Login
+
+- **Username:** emilys
+- **Password:** emilyspass
 
 ## Features
 
