@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onEdit, onDelete }) {
   return (
     <div className="product-card">
       <Link href={`/products/${product.id}`}>
@@ -26,8 +26,20 @@ export default function ProductCard({ product }) {
           <Link href={`/products/${product.id}`} className="btn btn-sm btn-view">
             View
           </Link>
-          <button className="btn btn-sm btn-edit">Edit</button>
-          <button className="btn btn-sm btn-delete">Delete</button>
+          <button
+            type="button"
+            className="btn btn-sm btn-edit"
+            onClick={() => onEdit && onEdit(product)}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-delete"
+            onClick={() => onDelete && onDelete(product)}
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>

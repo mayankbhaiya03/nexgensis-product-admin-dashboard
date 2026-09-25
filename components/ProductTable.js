@@ -1,6 +1,13 @@
 import Link from "next/link";
 
-export default function ProductTable({ products, sort, order, onSortChange }) {
+export default function ProductTable({
+  products,
+  sort,
+  order,
+  onSortChange,
+  onEdit,
+  onDelete,
+}) {
   function handleHeaderClick(field) {
     if (!onSortChange) return;
     if (sort !== field) {
@@ -80,8 +87,20 @@ export default function ProductTable({ products, sort, order, onSortChange }) {
                   >
                     View
                   </Link>
-                  <button className="btn btn-sm btn-edit">Edit</button>
-                  <button className="btn btn-sm btn-delete">Delete</button>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-edit"
+                    onClick={() => onEdit && onEdit(product)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-delete"
+                    onClick={() => onDelete && onDelete(product)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </td>
             </tr>

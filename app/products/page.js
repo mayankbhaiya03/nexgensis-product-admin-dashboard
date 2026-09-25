@@ -3,13 +3,15 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { getProducts, searchProducts, getCategories } from "@/services/products";
+import { getProducts, searchProducts, getCategories, addProduct, updateProduct, deleteProduct } from "@/services/products";
 import { parseProductParams, clampPage } from "@/lib/pagination";
 import Navbar from "@/components/Navbar";
 import ProductFilters from "@/components/ProductFilters";
 import ProductTable from "@/components/ProductTable";
 import ProductCard from "@/components/ProductCard";
 import Pagination from "@/components/Pagination";
+import ProductModal from "@/components/ProductModal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 function ProductsContent() {
   const router = useRouter();
@@ -30,6 +32,31 @@ function ProductsContent() {
 
   // Request ID ref to prevent stale response race conditions
   const latestRequestId = useRef(0);
+
+  // --- CRUD Modal State ---
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("add"); // "add" | "edit"
+  const [modalProduct, setModalProduct] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState("");
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteProduct_, setDeleteProduct_] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  // Toast/notification for success feedback
+  const [toast, setToast] = useState("");
+  const toastTimerRef = useRef(null);
+
+  function showToast(message) {
+    setToast(message);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(""), 3500);
+  }
+
+  // Counter for generating unique IDs for locally-added products
+  const localIdCounter = useRef(100000);
 
   // Synchronize local search input with URL search param (e.g. on Back/Forward or category clear)
   useEffect(() => {
@@ -192,7 +219,7 @@ function ProductsContent() {
     };
   }, [checkingAuth, page, limit, search, category, sort, order, delay, updateURL]);
 
-  // Handler functions
+  // --- Handler functions ---
   function handleSearchInputChange(val) {
     setSearchInput(val);
   }
@@ -238,6 +265,115 @@ function ProductsContent() {
     updateURL({ page: 1, limit: newLimit });
   }
 
+  // --- CRUD Handlers ---
+
+  // Open Add modal
+  function handleOpenAdd() {
+    setModalMode("add");
+    setModalProduct(null);
+    setModalError("");
+    setModalOpen(true);
+  }
+
+  // Open Edit modal
+  function handleOpenEdit(product) {
+    setModalMode("edit");
+    setModalProduct(product);
+    setModalError("");
+    setModalOpen(true);
+  }
+
+  // Close Product modal
+  function handleCloseModal() {
+    if (modalLoading) return;
+    setModalOpen(false);
+    setModalProduct(null);
+    setModalError("");
+  }
+
+  // Save handler (Add or Edit)
+  async function handleSaveProduct(formData) {
+    setModalLoading(true);
+    setModalError("");
+
+    try {
+      if (modalMode === "add") {
+        const result = await addProduct(formData);
+        // DummyJSON returns the new product with an id (always 195 for simulated)
+        // Use a local unique id to prevent key collisions
+        const newProduct = {
+          ...formData,
+          ...result,
+          id: localIdCounter.current++,
+          thumbnail: result.thumbnail || "https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/thumbnail.png",
+        };
+        // Prepend the new product to the current list
+        setProducts((prev) => [newProduct, ...prev]);
+        setTotal((prev) => prev + 1);
+        showToast(`"${newProduct.title}" has been added successfully.`);
+      } else {
+        // Edit mode
+        const result = await updateProduct(modalProduct.id, formData);
+        // Update the product in-place in the list
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === modalProduct.id ? { ...p, ...formData, ...result } : p
+          )
+        );
+        showToast(`"${formData.title}" has been updated successfully.`);
+      }
+      setModalOpen(false);
+      setModalProduct(null);
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Something went wrong. Please try again.";
+      setModalError(message);
+    } finally {
+      setModalLoading(false);
+    }
+  }
+
+  // Open Delete confirmation modal
+  function handleOpenDelete(product) {
+    setDeleteProduct_(product);
+    setDeleteError("");
+    setDeleteModalOpen(true);
+  }
+
+  // Close Delete modal
+  function handleCloseDelete() {
+    if (deleteLoading) return;
+    setDeleteModalOpen(false);
+    setDeleteProduct_(null);
+    setDeleteError("");
+  }
+
+  // Confirm Delete
+  async function handleConfirmDelete(productId) {
+    setDeleteLoading(true);
+    setDeleteError("");
+
+    try {
+      await deleteProduct(productId);
+      // Remove the product from the list
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      setTotal((prev) => Math.max(0, prev - 1));
+      showToast(`"${deleteProduct_?.title}" has been deleted.`);
+      setDeleteModalOpen(false);
+      setDeleteProduct_(null);
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to delete product. Please try again.";
+      setDeleteError(message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  }
+
   if (checkingAuth) {
     return null;
   }
@@ -246,7 +382,31 @@ function ProductsContent() {
     <div className="dashboard">
       <Navbar />
       <main className="dashboard-content">
-        <h1 className="dashboard-heading">Products Dashboard</h1>
+        <div className="dashboard-header-row">
+          <h1 className="dashboard-heading">Products Dashboard</h1>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleOpenAdd}
+          >
+            + Add Product
+          </button>
+        </div>
+
+        {/* Toast notification */}
+        {toast && (
+          <div className="toast-success">
+            {toast}
+            <button
+              type="button"
+              className="toast-close"
+              onClick={() => setToast("")}
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Filter, Search & Sort Bar */}
         <ProductFilters
@@ -308,13 +468,20 @@ function ProductsContent() {
                 sort={sort}
                 order={order}
                 onSortChange={handleSortChange}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
               />
             </div>
 
             {/* Mobile cards */}
             <div className="mobile-only">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleOpenDelete}
+                />
               ))}
             </div>
 
@@ -327,6 +494,28 @@ function ProductsContent() {
             />
           </>
         )}
+
+        {/* Add/Edit Product Modal */}
+        <ProductModal
+          isOpen={modalOpen}
+          mode={modalMode}
+          product={modalProduct}
+          categories={categories}
+          onClose={handleCloseModal}
+          onSave={handleSaveProduct}
+          loading={modalLoading}
+          error={modalError}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmModal
+          isOpen={deleteModalOpen}
+          product={deleteProduct_}
+          onClose={handleCloseDelete}
+          onConfirm={handleConfirmDelete}
+          loading={deleteLoading}
+          error={deleteError}
+        />
       </main>
     </div>
   );
