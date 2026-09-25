@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function ProductTable({ products, sort, order, onSortChange }) {
   function handleHeaderClick(field) {
     if (!onSortChange) return;
@@ -53,20 +55,31 @@ export default function ProductTable({ products, sort, order, onSortChange }) {
           {products.map((product) => (
             <tr key={product.id}>
               <td>
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className="product-thumb"
-                />
+                <Link href={`/products/${product.id}`}>
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="product-thumb"
+                  />
+                </Link>
               </td>
-              <td className="product-title-cell">{product.title}</td>
+              <td className="product-title-cell">
+                <Link href={`/products/${product.id}`} className="product-title-link">
+                  {product.title}
+                </Link>
+              </td>
               <td>{product.category}</td>
               <td>${product.price.toFixed(2)}</td>
               <td>{product.rating}</td>
               <td>{product.stock}</td>
               <td>
                 <div className="action-buttons">
-                  <button className="btn btn-sm btn-view">View</button>
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="btn btn-sm btn-view"
+                  >
+                    View
+                  </Link>
                   <button className="btn btn-sm btn-edit">Edit</button>
                   <button className="btn btn-sm btn-delete">Delete</button>
                 </div>
